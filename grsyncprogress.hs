@@ -37,49 +37,53 @@ customlines _ "" = []
 customlines lt x = 
     case xs of
          [] -> [(lt, line)]
-         ('\n' : next) -> (lt, line) : customlines HardLine next
          ('\n' : '\r' : next) -> (lt, line) : customlines HardLine next
+         ('\n' : next) -> (lt, line) : customlines HardLine next
          ('\r' : '\n' : next) -> (lt, line) : customlines HardLine next
          ('\r' : next) -> (lt, line) : customlines SoftLine next
     where (line, xs) = break (`elem` "\n\r") x
 
 runGUI mv = 
-     do stat <- takeMVar mv
+     do stat <- readMVar mv
         print stat
         threadDelay 1000000
         runGUI mv
 
 procstream mv stream = 
-    do (totalfiles, remaningstream) <- procscanning mv (map snd stream)
+    do (totalfiles, remainingstream) <- procscanning mv (map snd stream)
        mapM_ (procprogress mv totalfiles) remainingstream
+
+tweak mv func =
+    modifyMVar_ mv (\x -> return (func x))
 
 procscanning mv [] = return (0, [])
 procscanning mv (x:xs)
     | isSuffixOf "files..." x = 
-        modifyMVar_ mv (\x -> x { totalbar = 
+        tweak mv (\y -> y { totalbarlabel = 
                                   "Scanned " ++ (head (words x)) ++ " files"})
         >> procscanning mv xs
     | isSuffixOf "files to consider" x =
         return (read (head (words x)), xs)
-    | otherwise = procscanning mv xs
+    | otherwise = print x >> procscanning mv xs
 
 procprogress mv totalfiles line
-    | progressl = 
-        case progressl of
-         [bytes, pct] -> 
-           modifyMVar_ mv 
-             (\x -> x {filebarfrac = Just ((read pct) / 100),
-                       filebartest = pct ++ "%"})
-         x -> fail $ "Couldn't handle " ++ x
-    | tocheck =
-        case tocheck of
+    | progressl /= [] && progressl /= [""] = 
+        do case progressl of
+             [bytes, pct] -> 
+               tweak mv 
+                 (\x -> x {filebarfrac = Just ((read pct) / 100),
+                           filebartext = pct ++ "%"})
+             x -> fail $ "Couldn't handle " ++ show x
+           case tocheck of
+             [] -> return ()
              [_, thisfile, total] ->
-                 modifyMVar_ mv
+                 tweak mv
                  (\x -> x {totalbarfrac = Just ((read thisfile) / (read total)),
-                           totalbartext = "File " thisfile ++ " of " ++ total})
-             x -> fail $ "Tocheck couldn't handle " ++ x
+                           totalbartext = "File " ++ thisfile ++ " of " 
+                                          ++ total})
+             x -> fail $ "Tocheck couldn't handle " ++ show x
     | otherwise =
-        modifyMVar_ mv (\x -> x {filebarlabel = line})
+        tweak mv (\x -> x {filebarlabel = line})
 
     where progressl = "^ *([0-9]+) +([0-9]+)%.+[0-9]+:[0-9]+:[0-9]+" =~ line
           tocheck = "xfer#[0-9]+, to-check=([0-9]+)/([0-9]+)" =~ line
