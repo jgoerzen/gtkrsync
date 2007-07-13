@@ -6,6 +6,9 @@ import Control.Concurrent.MVar
 import Control.Concurrent
 import Data.List
 import Text.Regex.Posix
+import Graphics.UI.Gtk
+import Graphics.UI.Gtk.Glade
+import Control.Monad
 
 data LineType = SoftLine | HardLine
     deriving (Eq, Read, Show)
@@ -24,11 +27,13 @@ data Progress = Progress {
     finished :: Bool}
     deriving (Eq, Show)
 
+initialprogress = (Progress "" "" (Just 0) "" "" Nothing False)
+
 main = do
     hSetBuffering stdin (BlockBuffering Nothing)
     rsyncinput <- getContents
     let rsyncstream = customlines rsyncinput
-    mv <- newMVar (Progress "" "" (Just 0) "" "" Nothing False)
+    mv <- newMVar initialprogress
     forkIO (runGUI mv)
     procstream mv rsyncstream
 
@@ -37,17 +42,48 @@ customlines "" = []
 customlines x = 
     case xs of
          [] -> [(HardLine, line)]
-         ('\n' : '\r' : next) -> (HardLine, line) : customlines next
+         -- ('\n' : '\r' : next) -> (HardLine, line) : customlines next
          ('\n' : next) -> (HardLine, line) : customlines next
-         ('\r' : '\n' : next) -> (HardLine, line) : customlines next
+         -- ('\r' : '\n' : next) -> (HardLine, line) : customlines next
          ('\r' : next) -> (SoftLine, line) : customlines next
     where (line, xs) = break (`elem` "\n\r") x
 
 runGUI mv = 
-     do stat <- readMVar mv
-        print stat
+     do initGUI
+        timeoutAddFull (yield >> return True)
+                       priorityDefaultIdle 50
+        -- gladefn <- getDataFileName "grsyncprogress.glade"
+        -- FIXME: use this for release: Just xml <- xmlNew gladefn
+        Just xml <- xmlNew "grsyncprogress.glade"
+
+        window <- xmlGetWidget xml castToWindow "mainwindow"
+        onDestroy window mainQuit
+
+        pbfile <- xmlGetWidget xml castToProgressBar "progressbarfile"
+        pbtotal <- xmlGetWidget xml castToProgressBar "progressbaroverall"
+        lfile <- xmlGetWidget xml castToLabel "labelfile"
+        ltotal <- xmlGetWidget xml castToLabel "labeloverall"
+        
+        firststatus <- readMVar mv
+        forkIO (procData mv initialprogress pbfile pbtotal lfile ltotal)
+        mainGUI
+
+procData mv lastprogress pbfile pbtotal lfile ltotal = do
         threadDelay 1000000
-        runGUI mv
+        stat <- readMVar mv
+        when (stat /= lastprogress) (paintgui stat)
+        procData mv stat pbfile pbtotal lfile ltotal
+    where paintgui stat = do
+              progressBarSetText pbfile (filebartext stat)
+              progressBarSetText pbtotal (totalbartext stat)
+              case (filebarfrac stat) of
+                   Nothing -> progressBarPulse pbfile
+                   Just x -> progressBarSetFraction pbfile x
+              case (totalbarfrac stat) of
+                   Nothing -> progressBarPulse pbtotal
+                   Just x -> progressBarSetFraction pbtotal x
+              labelSetText lfile (filebarlabel stat)
+              labelSetText ltotal (totalbarlabel stat)
 
 procstream mv stream = 
     do (totalfiles, remainingstream) <- procscanning mv (map snd stream)
