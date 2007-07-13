@@ -99,28 +99,32 @@ procscanning mv (x:xs)
                                   "Scanned " ++ (head (words x)) ++ " files"})
         >> procscanning mv xs
     | isSuffixOf "files to consider" x =
+        print "procscanning returning" >> 
         return (read (head (words x)), xs)
     | otherwise = print x >> procscanning mv xs
 
 procprogress mv totalfiles line
-    | progressl /= [] && progressl /= [""] = 
-        do case progressl of
-             [bytes, pct] -> 
+    | progressl /= [] =
+        do case head progressl of
+             [_, bytes, pct] -> 
                tweak mv 
                  (\x -> x {filebarfrac = Just ((read pct) / 100),
                            filebartext = pct ++ "%"})
              x -> fail $ "Couldn't handle " ++ show x
            case tocheck of
              [] -> return ()
-             [_, thisfile, total] ->
+             [[_, thisfile, total]] ->
                  tweak mv
-                 (\x -> x {totalbarfrac = Just ((read thisfile) / (read total)),
+                 (\x -> x {totalbarfrac = Just ((read total) - (read thisfile) / (read total)),
                            totalbartext = "File " ++ thisfile ++ " of " 
                                           ++ total})
              x -> fail $ "Tocheck couldn't handle " ++ show x
     | otherwise =
+        print progressl >>
+        print line >> 
         tweak mv (\x -> x {filebarlabel = line})
 
-    where progressl = "^ *([0-9]+) +([0-9]+)%.+[0-9]+:[0-9]+:[0-9]+" =~ line
-          tocheck = "xfer#[0-9]+, to-check=([0-9]+)/([0-9]+)" =~ line
+    where progressl :: [[String]]
+          progressl = line =~ "^ *([0-9]+) +([0-9]+)%" -- .+[0-9]+:[0-9]+:[0-9]+" =~ line
+          tocheck = line =~ "xfer#[0-9]+, to-check=([0-9]+)/([0-9]+)"
 
