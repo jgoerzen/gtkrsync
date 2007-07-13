@@ -22,7 +22,8 @@ data GUIParts = GUIParts {
     ltotal :: Label,
     mainwin :: Window,
     pbfile :: ProgressBar,
-    pbtotal :: ProgressBar }
+    pbtotal :: ProgressBar,
+    messages :: TextView}
 
 main = do
     hSetBuffering stdin (BlockBuffering Nothing)
@@ -56,18 +57,33 @@ runGUI rsyncstream =
         pbtotal' <- xmlGetWidget xml castToProgressBar "progressbaroverall"
         lfile' <- xmlGetWidget xml castToLabel "labelfile"
         ltotal' <- xmlGetWidget xml castToLabel "labeloverall"
+        lmessages' <- xmlGetWidget xml castToTextView "messages"
 
-        let gui = GUIParts lfile' ltotal' window' pbfile' pbtotal'
+        let gui = GUIParts lfile' ltotal' window' pbfile' pbtotal' lmessages'
         
         forkIO mainGUI
-        procstream gui rsyncstream
+        displayedstream <- procmessages gui rsyncstream
+        procstream gui displayedstream
 
-procstream gui stream = 
+procmessages gui stream = 
+    do buf <- textViewGetBuffer (messages gui)
+       iter <- textBufferGetEndIter buf
+       mapM (procmsg gui buf iter) stream
+
+procmsg gui buf iter (ltype, msg) =
+    do end <- textBufferGetEndIter buf
+       -- textBufferDelete buf iter end
+       textBufferInsert buf iter ('\n' : msg)
+       putStrLn $ "Inserted: " ++ msg
+       when (ltype == HardLine) (textIterForwardToEnd iter)
+       return msg
+
+procstream gui stream =
     do remainingstream <- procscanning gui stream
        mapM_ (procprogress gui) remainingstream
 
 procscanning gui [] = return []
-procscanning gui ((_, x):xs)
+procscanning gui (x:xs)
     | isSuffixOf "files..." x = 
         labelSetText (ltotal gui) ("Scanned " ++ (head (words x)) ++ " files")
         >> progressBarPulse (pbtotal gui)
@@ -78,7 +94,7 @@ procscanning gui ((_, x):xs)
         >> return xs
     | otherwise = procscanning gui xs
 
-procprogress gui (ltype, line)
+procprogress gui line
     | progressl /= [] =
         do case head progressl of
              [_, bytes, pct] -> 
