@@ -82,7 +82,7 @@ procmsg gui buf mark (ltype, msg) =
        textBufferInsert buf ipoint ('\n' : msg)
 
        lines <- textBufferGetLineCount buf
-       when (lines > 50) $ do
+       when (lines > 500) $ do
                start <- textBufferGetStartIter buf
                eol <- textBufferGetIterAtLine buf 1
                textBufferDelete buf start eol 
@@ -91,9 +91,6 @@ procmsg gui buf mark (ltype, msg) =
        adj <- scrolledWindowGetVAdjustment (messageswin gui)
        upper <- adjustmentGetUpper adj
        adjustmentSetValue adj upper
-
-       -- scrolledWindowSetVAdjustment (messageswin gui) adj
-       putStrLn $ "Inserted: " ++ msg
 
        -- Update the iterator the new offset
        case ltype of
