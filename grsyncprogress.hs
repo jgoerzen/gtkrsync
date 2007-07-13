@@ -9,6 +9,7 @@ import Text.Regex.Posix
 import Graphics.UI.Gtk
 import Graphics.UI.Gtk.Glade
 import Control.Monad
+import System.Exit
 
 data LineType = SoftLine | HardLine
     deriving (Eq, Read, Show)
@@ -24,7 +25,8 @@ data GUIParts = GUIParts {
     pbfile :: ProgressBar,
     pbtotal :: ProgressBar,
     messages :: TextView,
-    messageswin :: ScrolledWindow}
+    messageswin :: ScrolledWindow,
+    btdone :: Button}
 
 main = do
     hSetBuffering stdin (BlockBuffering Nothing)
@@ -52,7 +54,7 @@ runGUI rsyncstream =
         Just xml <- xmlNew "grsyncprogress.glade"
 
         window' <- xmlGetWidget xml castToWindow "mainwindow"
-        onDestroy window' mainQuit
+        onDestroy window' exitApp
 
         pbfile' <- xmlGetWidget xml castToProgressBar "progressbarfile"
         pbtotal' <- xmlGetWidget xml castToProgressBar "progressbaroverall"
@@ -60,19 +62,26 @@ runGUI rsyncstream =
         ltotal' <- xmlGetWidget xml castToLabel "labeloverall"
         messages' <- xmlGetWidget xml castToTextView "messages"
         messageswin' <- xmlGetWidget xml castToScrolledWindow "messageswindow"
-
+        button' <- xmlGetWidget xml castToButton "donebutton"
+        onClicked button' exitApp
 
         let gui = GUIParts lfile' ltotal' window' pbfile' pbtotal' messages'
-                  messageswin'
+                  messageswin' button'
         
         forkIO mainGUI
         streamWithMsgActions <- procmessages gui rsyncstream
         procstream gui streamWithMsgActions
 
+exitApp = 
+    do mainQuit
+       exitWith ExitSuccess
 procmessages gui stream = 
     do buf <- textViewGetBuffer (messages gui)
        iter <- textBufferGetEndIter buf
        mark <- textBufferCreateMark buf Nothing iter True
+       -- tag <- textTagNew Nothing
+       -- set tag [textTagFamily := "Monospace"]
+       -- textBufferApplyTag buf tag iter iter
        return $ map (\x -> (procmsg gui buf mark x, snd x)) stream
 
 procmsg gui buf mark (ltype, msg) =
