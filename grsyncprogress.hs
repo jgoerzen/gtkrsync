@@ -34,12 +34,13 @@ main = do
 
 customlines :: String -> [RsyncLine]
 customlines "" = []
-customlines x = case xs of
-                     [] -> [(HardLine, line)]
-                     ('\n' : next) -> (HardLine, line) : customlines next
-         ('\n' : next) -> (lt, line) : customlines HardLine next
-                     ('\r' : next) -> (SoftLine, line) : customlines next
-         ('\n' : next) -> (lt, line) : customlines HardLine next
+customlines x = 
+    case xs of
+         [] -> [(HardLine, line)]
+         ('\n' : '\r' : next) -> (HardLine, line) : customlines next
+         ('\n' : next) -> (HardLine, line) : customlines next
+         ('\r' : '\n' : next) -> (HardLine, line) : customlines next
+         ('\r' : next) -> (SoftLine, line) : customlines next
     where (line, xs) = break (`elem` "\n\r") x
 
 runGUI mv = 
