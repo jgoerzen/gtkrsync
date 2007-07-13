@@ -86,7 +86,7 @@ procData mv lastprogress pbfile pbtotal lfile ltotal = do
               labelSetText ltotal (totalbarlabel stat)
 
 procstream mv stream = 
-    do (totalfiles, remainingstream) <- procscanning mv (map snd stream)
+    do remainingstream <- procscanning mv (map snd stream)
        mapM_ (procprogress mv totalfiles) remainingstream
 
 tweak mv func =
@@ -100,7 +100,7 @@ procscanning mv (x:xs)
         >> procscanning mv xs
     | isSuffixOf "files to consider" x =
         tweak mv (\y -> y {totalbarlabel = ""}) >>
-        return (read (head (words x)), xs)
+        return xs
     | otherwise = print x >> procscanning mv xs
 
 procprogress mv totalfiles line
