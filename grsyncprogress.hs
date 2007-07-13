@@ -11,15 +11,17 @@ type RsyncLine = (LineType, String)
 main = do
     hSetBuffering stdin (BlockBuffering Nothing)
     rsyncinput <- getContents
-    let rsyncstream = customlines rsyncinput
+    let rsyncstream = customlines HardLine rsyncinput
     mapM_ print rsyncstream
 
-customlines :: String -> [RsyncLine]
-customlines "" = []
-customlines x = case xs of
-                     [] -> [(HardLine, line)]
-                     ('\n' : next) -> (HardLine, line) : customlines next
-                     ('\r' : '\n' : next) -> (HardLine, line) : customlines next
-                     ('\r' : next) -> (SoftLine, line) : customlines next
+customlines :: LineType -> String -> [RsyncLine]
+customlines _ "" = []
+customlines lt x = 
+    case xs of
+         [] -> [(lt, line)]
+         ('\n' : next) -> (lt, line) : customlines HardLine next
+         ('\n' : '\r' : next) -> (lt, line) : customlines HardLine next
+         ('\r' : '\n' : next) -> (lt, line) : customlines HardLine next
+         ('\r' : next) -> (lt, line) : customlines SoftLine next
     where (line, xs) = break (`elem` "\n\r") x
 
