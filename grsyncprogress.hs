@@ -17,25 +17,18 @@ data LineType = SoftLine | HardLine
 -- character that occured **BEFORE** the String.
 type RsyncLine = (LineType, String)
 
-data Progress = Progress {
-    filebartext :: String,
-    filebarlabel :: String,
-    filebarfrac :: Maybe Double,
-    totalbartext :: String,
-    totalbarlabel :: String,
-    totalbarfrac :: Maybe Double,
-    finished :: Bool}
-    deriving (Eq, Show)
-
-initialprogress = (Progress "" "" (Just 0) "" "" Nothing False)
+data GUIParts = GUIParts {
+    lfile :: Label,
+    ltotal :: Label,
+    mainwin :: Window,
+    pbfile :: ProgressBar,
+    pbtotal :: ProgressBar }
 
 main = do
     hSetBuffering stdin (BlockBuffering Nothing)
     rsyncinput <- getContents
     let rsyncstream = customlines rsyncinput
-    mv <- newMVar initialprogress
-    forkIO (runGUI mv)
-    procstream mv rsyncstream
+    runGUI rsyncstream
 
 customlines :: String -> [RsyncLine]
 customlines "" = []
@@ -48,7 +41,7 @@ customlines x =
          ('\r' : next) -> (SoftLine, line) : customlines next
     where (line, xs) = break (`elem` "\n\r") x
 
-runGUI mv = 
+runGUI rsyncstream = 
      do initGUI
         timeoutAddFull (yield >> return True)
                        priorityDefaultIdle 50
@@ -56,75 +49,56 @@ runGUI mv =
         -- FIXME: use this for release: Just xml <- xmlNew gladefn
         Just xml <- xmlNew "grsyncprogress.glade"
 
-        window <- xmlGetWidget xml castToWindow "mainwindow"
-        onDestroy window mainQuit
+        window' <- xmlGetWidget xml castToWindow "mainwindow"
+        onDestroy window' mainQuit
 
-        pbfile <- xmlGetWidget xml castToProgressBar "progressbarfile"
-        pbtotal <- xmlGetWidget xml castToProgressBar "progressbaroverall"
-        lfile <- xmlGetWidget xml castToLabel "labelfile"
-        ltotal <- xmlGetWidget xml castToLabel "labeloverall"
+        pbfile' <- xmlGetWidget xml castToProgressBar "progressbarfile"
+        pbtotal' <- xmlGetWidget xml castToProgressBar "progressbaroverall"
+        lfile' <- xmlGetWidget xml castToLabel "labelfile"
+        ltotal' <- xmlGetWidget xml castToLabel "labeloverall"
+
+        let gui = GUIParts lfile' ltotal' window' pbfile' pbtotal'
         
-        firststatus <- readMVar mv
-        forkIO (procData mv initialprogress pbfile pbtotal lfile ltotal)
-        mainGUI
+        forkIO mainGUI
+        procstream gui rsyncstream
 
-procData mv lastprogress pbfile pbtotal lfile ltotal = do
-        threadDelay 1000000
-        stat <- readMVar mv
-        when (stat /= lastprogress) (paintgui stat)
-        procData mv stat pbfile pbtotal lfile ltotal
-    where paintgui stat = do
-              progressBarSetText pbfile (filebartext stat)
-              progressBarSetText pbtotal (totalbartext stat)
-              case (filebarfrac stat) of
-                   Nothing -> progressBarPulse pbfile
-                   Just x -> progressBarSetFraction pbfile x
-              case (totalbarfrac stat) of
-                   Nothing -> progressBarPulse pbtotal
-                   Just x -> progressBarSetFraction pbtotal x
-              labelSetText lfile (filebarlabel stat)
-              labelSetText ltotal (totalbarlabel stat)
+procstream gui stream = 
+    do remainingstream <- procscanning gui stream
+       mapM_ (procprogress gui) remainingstream
 
-procstream mv stream = 
-    do remainingstream <- procscanning mv (map snd stream)
-       mapM_ (procprogress mv totalfiles) remainingstream
-
-tweak mv func =
-    modifyMVar_ mv (\x -> return (func x))
-
-procscanning mv [] = return (0, [])
-procscanning mv (x:xs)
+procscanning gui [] = return []
+procscanning gui ((_, x):xs)
     | isSuffixOf "files..." x = 
-        tweak mv (\y -> y { totalbarlabel = 
-                                  "Scanned " ++ (head (words x)) ++ " files"})
-        >> procscanning mv xs
+        labelSetText (ltotal gui) ("Scanned " ++ (head (words x)) ++ " files")
+        >> progressBarPulse (pbtotal gui)
+        >> procscanning gui xs
     | isSuffixOf "files to consider" x =
-        tweak mv (\y -> y {totalbarlabel = ""}) >>
-        return xs
-    | otherwise = print x >> procscanning mv xs
+        labelSetText (ltotal gui) "" 
+        >> progressBarSetFraction (pbtotal gui) 0.0
+        >> return xs
+    | otherwise = procscanning gui xs
 
-procprogress mv totalfiles line
+procprogress gui (ltype, line)
     | progressl /= [] =
         do case head progressl of
              [_, bytes, pct] -> 
-               tweak mv 
-                 (\x -> x {filebarfrac = Just ((read pct) / 100),
-                           filebartext = pct ++ "%"})
+               progressBarSetFraction (pbfile gui) ((read pct) / 100)
+               >> progressBarSetText (pbfile gui) (pct ++ "%")
              x -> fail $ "Couldn't handle " ++ show x
            case tocheck of
              [] -> return ()
              [[_, thisfile, total]] ->
-                 tweak mv
-                 (\x -> x {totalbarfrac = Just (1.0 - (ithisfile / itotal)),
-                           totalbartext = "File " ++ show (floor (itotal - ithisfile))
-                                          ++ " of " ++ total ++ " (" ++
-                                          show (intpct) ++ "%)"})
+                 progressBarSetFraction (pbtotal gui) 
+                    (1.0 - (ithisfile / itotal))
+                 >> progressBarSetText (pbtotal gui)
+                      ("File " ++ show (floor (itotal - ithisfile))
+                       ++ " of " ++ total ++ " (" ++ show (intpct) ++ "%)")
                  where itotal = read total 
                        ithisfile = read thisfile 
                        intpct = floor (100 * (1.0 - (ithisfile / itotal)))
              x -> fail $ "Tocheck couldn't handle " ++ show x
     | otherwise =
-        tweak mv (\x -> x {filebarlabel = line})
+        labelSetText (lfile gui) line
 
     where progressl :: [[String]]
           progressl = line =~ "^ *([0-9]+) +([0-9]+)%" -- .+[0-9]+:[0-9]+:[0-9]+" =~ line
