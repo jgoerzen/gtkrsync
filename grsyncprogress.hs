@@ -99,7 +99,7 @@ procscanning mv (x:xs)
                                   "Scanned " ++ (head (words x)) ++ " files"})
         >> procscanning mv xs
     | isSuffixOf "files to consider" x =
-        print "procscanning returning" >> 
+        tweak mv (\y -> y {totalbarlabel = ""}) >>
         return (read (head (words x)), xs)
     | otherwise = print x >> procscanning mv xs
 
@@ -115,13 +115,15 @@ procprogress mv totalfiles line
              [] -> return ()
              [[_, thisfile, total]] ->
                  tweak mv
-                 (\x -> x {totalbarfrac = Just ((read total) - (read thisfile) / (read total)),
-                           totalbartext = "File " ++ thisfile ++ " of " 
-                                          ++ total})
+                 (\x -> x {totalbarfrac = Just (1.0 - (ithisfile / itotal)),
+                           totalbartext = "File " ++ show (floor (itotal - ithisfile))
+                                          ++ " of " ++ total ++ " (" ++
+                                          show (intpct) ++ "%)"})
+                 where itotal = read total 
+                       ithisfile = read thisfile 
+                       intpct = floor (100 * (1.0 - (ithisfile / itotal)))
              x -> fail $ "Tocheck couldn't handle " ++ show x
     | otherwise =
-        print progressl >>
-        print line >> 
         tweak mv (\x -> x {filebarlabel = line})
 
     where progressl :: [[String]]
