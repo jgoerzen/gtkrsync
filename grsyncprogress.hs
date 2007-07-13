@@ -72,13 +72,20 @@ runGUI rsyncstream =
 procmessages gui stream = 
     do buf <- textViewGetBuffer (messages gui)
        iter <- textBufferGetEndIter buf
-       return $ map (\x -> (procmsg gui buf iter x, snd x)) stream
+       mark <- textBufferCreateMark buf Nothing iter True
+       return $ map (\x -> (procmsg gui buf mark x, snd x)) stream
 
-procmsg gui buf iter (ltype, msg) =
+procmsg gui buf mark (ltype, msg) =
     do end <- textBufferGetEndIter buf
-       offset <- textIterGetOffset iter
-       textBufferDelete buf iter end
-       textBufferInsert buf iter ('\n' : msg)
+       ipoint <- textBufferGetIterAtMark buf mark
+       textBufferDelete buf ipoint end
+       textBufferInsert buf ipoint ('\n' : msg)
+
+       lines <- textBufferGetLineCount buf
+       when (lines > 50) $ do
+               start <- textBufferGetStartIter buf
+               eol <- textBufferGetIterAtLine buf 1
+               textBufferDelete buf start eol 
 
        -- scroll to the end of the buffer
        adj <- scrolledWindowGetVAdjustment (messageswin gui)
@@ -90,8 +97,9 @@ procmsg gui buf iter (ltype, msg) =
 
        -- Update the iterator the new offset
        case ltype of
-            HardLine -> textIterForwardToEnd iter
-            SoftLine -> textIterSetOffset iter offset
+            HardLine -> do end <- textBufferGetEndIter buf
+                           textBufferMoveMark buf mark end
+            SoftLine -> return () -- leave the mark where it is
        return ()
 
 procstream gui stream =
