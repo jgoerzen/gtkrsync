@@ -62,13 +62,13 @@ runGUI rsyncstream =
         let gui = GUIParts lfile' ltotal' window' pbfile' pbtotal' lmessages'
         
         forkIO mainGUI
-        displayedstream <- procmessages gui rsyncstream
-        procstream gui displayedstream
+        streamWithMsgActions <- procmessages gui rsyncstream
+        procstream gui streamWithMsgActions
 
 procmessages gui stream = 
     do buf <- textViewGetBuffer (messages gui)
        iter <- textBufferGetEndIter buf
-       mapM (procmsg gui buf iter) stream
+       return $ map (\x -> (procmsg gui buf iter x, snd x)) stream
 
 procmsg gui buf iter (ltype, msg) =
     do end <- textBufferGetEndIter buf
@@ -76,27 +76,30 @@ procmsg gui buf iter (ltype, msg) =
        textBufferInsert buf iter ('\n' : msg)
        putStrLn $ "Inserted: " ++ msg
        when (ltype == HardLine) (textIterForwardToEnd iter)
-       return msg
+       return ()
 
 procstream gui stream =
     do remainingstream <- procscanning gui stream
        mapM_ (procprogress gui) remainingstream
 
 procscanning gui [] = return []
-procscanning gui (x:xs)
+procscanning gui ((action,x):xs)
     | isSuffixOf "files..." x = 
-        labelSetText (ltotal gui) ("Scanned " ++ (head (words x)) ++ " files")
+        action 
+        >> labelSetText (ltotal gui) ("Scanned " ++ (head (words x)) ++ " files")
         >> progressBarPulse (pbtotal gui)
         >> procscanning gui xs
     | isSuffixOf "files to consider" x =
-        labelSetText (ltotal gui) "" 
+        action
+        >> labelSetText (ltotal gui) "" 
         >> progressBarSetFraction (pbtotal gui) 0.0
         >> return xs
-    | otherwise = procscanning gui xs
+    | otherwise = action >> procscanning gui xs
 
-procprogress gui line
+procprogress gui (action, line)
     | progressl /= [] =
-        do case head progressl of
+        do action
+           case head progressl of
              [_, bytes, pct] -> 
                progressBarSetFraction (pbfile gui) ((read pct) / 100)
                >> progressBarSetText (pbfile gui) (pct ++ "%")
@@ -114,7 +117,7 @@ procprogress gui line
                        intpct = floor (100 * (1.0 - (ithisfile / itotal)))
              x -> fail $ "Tocheck couldn't handle " ++ show x
     | otherwise =
-        labelSetText (lfile gui) line
+        action >> labelSetText (lfile gui) line
 
     where progressl :: [[String]]
           progressl = line =~ "^ *([0-9]+) +([0-9]+)%" -- .+[0-9]+:[0-9]+:[0-9]+" =~ line
