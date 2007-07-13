@@ -72,10 +72,13 @@ procmessages gui stream =
 
 procmsg gui buf iter (ltype, msg) =
     do end <- textBufferGetEndIter buf
-       -- textBufferDelete buf iter end
+       offset <- textIterGetOffset iter
+       textBufferDelete buf iter end
        textBufferInsert buf iter ('\n' : msg)
        putStrLn $ "Inserted: " ++ msg
-       when (ltype == HardLine) (textIterForwardToEnd iter)
+       case ltype of
+            HardLine -> textIterForwardToEnd iter
+            SoftLine -> textIterSetOffset iter offset
        return ()
 
 procstream gui stream =
