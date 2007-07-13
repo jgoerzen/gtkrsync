@@ -10,6 +10,8 @@ import Graphics.UI.Gtk
 import Graphics.UI.Gtk.Glade
 import Control.Monad
 import System.Exit
+import Data.Progress.Tracker
+import System.Time.Utils
 
 data LineType = SoftLine | HardLine
     deriving (Eq, Read, Show)
@@ -109,10 +111,11 @@ procmsg gui buf mark (ltype, msg) =
        return ()
 
 procstream gui stream =
-    do remainingstream <- procscanning gui stream
-       mapM_ (procprogress gui) remainingstream
+    do (totalfiles, remainingstream) <- procscanning gui stream
+       progress <- newProgress "total" totalfiles
+       mapM_ (procprogress gui progress) remainingstream
 
-procscanning gui [] = return []
+procscanning gui [] = return (0, [])
 procscanning gui ((action,x):xs)
     | isSuffixOf "files..." x = 
         action 
@@ -123,10 +126,10 @@ procscanning gui ((action,x):xs)
         action
         >> labelSetText (ltotal gui) "" 
         >> progressBarSetFraction (pbtotal gui) 0.0
-        >> return xs
+        >> return (read . head . words $ x, xs)
     | otherwise = action >> procscanning gui xs
 
-procprogress gui (action, line)
+procprogress gui progress (action, line)
     | progressl /= [] =
         do action
            case head progressl of
@@ -142,9 +145,14 @@ procprogress gui (action, line)
                  >> progressBarSetText (pbtotal gui)
                       ("File " ++ show (floor (itotal - ithisfile))
                        ++ " of " ++ total ++ " (" ++ show (intpct) ++ "%)")
+                 >> setP progress (floor (itotal - ithisfile))
+                 >> setetr
                  where itotal = read total 
                        ithisfile = read thisfile 
                        intpct = floor (100 * (1.0 - (ithisfile / itotal)))
+                       setetr = do etr <- getETR progress
+                                   labelSetText (ltotal gui) 
+                                     ("ETA: " ++ renderSecs etr)
              x -> fail $ "Tocheck couldn't handle " ++ show x
     | otherwise =
         action >> labelSetText (lfile gui) line
