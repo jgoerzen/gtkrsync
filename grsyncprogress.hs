@@ -23,7 +23,8 @@ data GUIParts = GUIParts {
     mainwin :: Window,
     pbfile :: ProgressBar,
     pbtotal :: ProgressBar,
-    messages :: TextView}
+    messages :: TextView,
+    messageswin :: ScrolledWindow}
 
 main = do
     hSetBuffering stdin (BlockBuffering Nothing)
@@ -57,9 +58,12 @@ runGUI rsyncstream =
         pbtotal' <- xmlGetWidget xml castToProgressBar "progressbaroverall"
         lfile' <- xmlGetWidget xml castToLabel "labelfile"
         ltotal' <- xmlGetWidget xml castToLabel "labeloverall"
-        lmessages' <- xmlGetWidget xml castToTextView "messages"
+        messages' <- xmlGetWidget xml castToTextView "messages"
+        messageswin' <- xmlGetWidget xml castToScrolledWindow "messageswindow"
 
-        let gui = GUIParts lfile' ltotal' window' pbfile' pbtotal' lmessages'
+
+        let gui = GUIParts lfile' ltotal' window' pbfile' pbtotal' messages'
+                  messageswin'
         
         forkIO mainGUI
         streamWithMsgActions <- procmessages gui rsyncstream
@@ -75,7 +79,16 @@ procmsg gui buf iter (ltype, msg) =
        offset <- textIterGetOffset iter
        textBufferDelete buf iter end
        textBufferInsert buf iter ('\n' : msg)
+
+       -- scroll to the end of the buffer
+       adj <- scrolledWindowGetVAdjustment (messageswin gui)
+       upper <- adjustmentGetUpper adj
+       adjustmentSetValue adj upper
+
+       -- scrolledWindowSetVAdjustment (messageswin gui) adj
        putStrLn $ "Inserted: " ++ msg
+
+       -- Update the iterator the new offset
        case ltype of
             HardLine -> textIterForwardToEnd iter
             SoftLine -> textIterSetOffset iter offset
