@@ -25,4 +25,4 @@ clean-code:
 clean-doc:
 	-cd doc && scons -c && scons -c html pdf text ps
 	-rm -rf doc/.sconsign* .depend test
-	-rm -f doc/manpage* doc/*.1
+	-rm -f doc/manpage*
