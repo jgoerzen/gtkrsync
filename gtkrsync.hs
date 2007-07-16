@@ -30,7 +30,10 @@ main = do
     installHandler sigCHLD (Catch (chldHandler gui pid hasExited)) Nothing
 
     -- Check to see if we died before installing the handler
-    chldHandler gui pid hasExited
+    ps <- getProcessStatus False False pid
+    case ps of
+         Nothing -> return ()
+         Just x -> chldPs gui x hasExited
 
     runGUI gui rsyncstream
 
