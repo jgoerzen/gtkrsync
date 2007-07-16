@@ -1,0 +1,176 @@
+<!-- vim: set filetype=docbkxml shiftwidth=2 autoindent expandtab tw=77 : -->
+<!DOCTYPE reference PUBLIC "-//OASIS//DTD DocBook V4.1//EN" [
+  <!ENTITY package "<application>gtkrsync</application>">
+  <!ENTITY gtkrsync "<application>gtkrsync</application>">
+  <!ENTITY gtkrsyncp "<application>gtkrsyncp</application>">
+  <!ENTITY rsync "<application>rsync</application>">
+]>
+
+<reference>
+<title>gtkrsync Manual</title>
+
+  <refentry id="man.gtkrsync">
+    <indexterm><primary>gtkrsync</><secondary>Reference For</></>
+    <refentryinfo>
+      <address><email>jgoerzen@complete.org</email></address>
+      <author><firstname>John</firstname><surname>Goerzen</surname></author>
+    </refentryinfo>
+
+    <refmeta>
+      <refentrytitle>gtkrsync</refentrytitle>
+      <manvolnum>1</manvolnum>
+      <refmiscinfo>John Goerzen</refmiscinfo>
+    </refmeta>
+
+    <refnamediv>
+      <refname>gtkrsync</refname>
+      <refpurpose>GUI front-end for rsync</refpurpose>
+    </refnamediv>
+
+    <refsynopsisdiv>
+      <cmdsynopsis>
+      <command>gtkrsync</command>
+	<arg rep="repeat"><replaceable>args for rsync</replaceable></arg>
+      </cmdsynopsis>
+    </refsynopsisdiv>
+
+    <refsect1 id="gtkrsync.desc">
+      <title>Description</title>
+      <para>
+        &gtkrsync; is a graphical interface for displaying the progress of
+        an &rsync;(1) session.  It displays a running status display from
+        parsing the output of <literal>rsync --progress -v</literal>.  This
+        status display includes a per-file and overall status bar, overall
+        estimated time to completion, and an expandable button that shows
+        all rsync status output.
+      </para> 
+
+      <para> Unlike other GUI rsync frontends such as grsync, &gtkrsync; does
+        not have any GUI tools for configuring or invoking rsync.  &gtkrsync;
+        is designed to be invoked from the command line or shell scripts,
+        which already specify all the needed rsync options.  It is thus ideal
+        for scripted &rsync; runs that need a GUI, or for command-line users
+        that would like a GUI to monitor their &rsync; progress.
+      </para>
+
+      <para>
+        &gtkrsync; is a drop-in replacement
+ for rsync.  It fires up the GUI and invokes &rsync;, passing all args to
+ it.  When invoked this way, &gtkrsync; is able to detect if &rsync; exits
+ in error and alerts the user.  &gtkrsync; can also monitor both stdout
+ and stderr from &rsync;, and displays both.  The cancel button in
+ &gtkrsync; also will kill off the &rsync; process.  You must make sure to
+ pass <literal>--progress -v</literal> on the &gtkrsync; command line in
+ order to get enough information out of &rsync; to build a proper GUI.
+      </para>
+
+      <para>
+        The other binary is &gtkrsyncp;.  This program accepts the output of
+        <literal>rsync --progress -v</literal> on standard input and displays it in a GUI.  It
+ cannot detect whether &rsync; exited in error and cannot kill &rsync; when
+ Cancel is pressed.  However, this program may be useful in some cases
+ when direct control of &rsync; is handled elsewhere.
+      </para>
+
+    </refsect1>
+
+    <refsect1 id="hg.man.hg.buildpackage.options">
+      <title>Options</title>
+      <para>
+        All options passed to &gtkrsync; are sent directly to
+        <application>rsync</application>(1).  &gtkrsyncp; takes no options.
+      </para>
+    </refsect1>
+
+    <refsect1 id="hg.man.hg.buildpackage.environment">
+      <title>ENVIRONMENT VARIABLES</title>
+      <para>
+        &gtkrsync; will look for an <literal>RSYNC</literal> environment
+        variable.  If set, it is taken to be the name of the &rsync; binary.
+        If not given, <literal>rsync</literal> is used.  &gtkrsyncp; does not
+        use this variable.
+      </para>
+      <para>
+        This application uses no other environment variables directly, but other
+        programs or standard libraries may do so.  <literal>DISPLAY</literal>,
+        for instance, must be set for the X libraries to work.
+      </para>
+      <para>
+        Users using &rsync; over <application>ssh</application> may find the
+        <literal>SSH_ASKPASS</literal> variable useful.  This is interpreted
+        directly by <application>ssh</application> and can specify a GUI tool
+        to use to prompt the user for a password when needed.
+      </para>
+    </refsect1>
+
+    <refsect1>
+      <title>Copyright</title>
+  <para>
+    &gtkrsync;, all associated scripts and programs, this manual,
+    and all build scripts are Copyright &copy; 2007 John Goerzen.
+  </para>
+      <para>
+        This program is free software; you can redistribute it and/or modify
+        it under the terms of the GNU General Public License as published by
+        the Free Software Foundation; either version 2 of the License, or
+        (at your option) any later version.
+      </para>
+
+      <para>
+        This program is distributed in the hope that it will be useful,
+        but WITHOUT ANY WARRANTY; without even the implied warranty of
+        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+        GNU General Public License for more details.
+      </para>
+
+      <para>
+        You should have received a copy of the GNU General Public License
+        along with this program; if not, write to the Free Software
+        Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+      </para>
+    </refsect1>
+
+
+    <refsect1>
+      <title>Author</title>
+      <para>
+	&package;, its modules, documentation, executables, and all
+	included files, except where noted, was written by
+	John Goerzen <email>jgoerzen@complete.org</email> and
+	copyright is held as stated in the COPYRIGHT section.
+      </para>
+      <para>
+	&package; may be downloaded from the Debian packaging system or at
+	<ulink
+	  url="http://packages.debian.org/gtkrsync"></ulink>.
+      </para>
+      <para>
+	&package; may also be downloaded using Mercurial by running
+        <command>hg clone
+        http://hg.complete.org/gtkrsync</command>.
+      </para>
+    </refsect1>
+
+  <refsect1>
+          <title>See Also</title>
+  <para>
+    <application>rsync</application>(1),
+    <application>gtkrsync</application>(1),
+    <application>gtkrsyncp</application>(1),
+    <application>ssh</application>(1).
+  </para>
+  </refsect1>
+
+  </refentry>
+
+<!-- </reference> -->
+
+<!--
+Local Variables:
+mode: sgml
+sgml-parent-document:("../hg.sgml" "book" "appendix" "reference")
+sgml-set-face: T
+End:
+
+-->
+</reference>
