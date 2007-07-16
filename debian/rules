@@ -84,7 +84,8 @@ binary-arch: build install
 #	dh_installcron
 #	dh_installinfo
 	dh_installman docs/gtkrsync.1
-	dh_link
+	dh_link usr/share/man/man1/gtkrsync.1.gz \
+		usr/share/man/man1/gtkrsyncp.1.gz
 	dh_strip
 	dh_compress
 	dh_fixperms

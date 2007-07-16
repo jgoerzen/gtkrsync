@@ -15,6 +15,7 @@ import System.Exit
 import Data.Progress.Tracker
 import System.Time.Utils
 import RsyncParser
+import Paths_gtkrsync(getDataFileName)
 
 data GUIParts = GUIParts {
     lfile :: Label,
