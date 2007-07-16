@@ -32,6 +32,7 @@
       <command>gtkrsync</command>
 	<arg rep="repeat"><replaceable>args for rsync</replaceable></arg>
       </cmdsynopsis>
+      <cmdsynopsis><command>gtkrsyncp</command></cmdsynopsis>
     </refsynopsisdiv>
 
     <refsect1 id="gtkrsync.desc">
