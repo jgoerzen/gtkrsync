@@ -26,7 +26,8 @@ data GUIParts = GUIParts {
     messageswin :: ScrolledWindow,
     btdone :: Button}
 
-runGUI rsyncstream = 
+initRsyncGUI :: IO () -> IO GUIParts
+initRsyncGUI exitfunc = 
      do initGUI
         timeoutAddFull (yield >> return True)
                        priorityDefaultIdle 50
@@ -35,7 +36,7 @@ runGUI rsyncstream =
         Just xml <- xmlNew "gtkrsync.glade"
 
         window' <- xmlGetWidget xml castToWindow "mainwindow"
-        onDestroy window' exitApp
+        onDestroy window' exitfunc
 
         pbfile' <- xmlGetWidget xml castToProgressBar "progressbarfile"
         pbtotal' <- xmlGetWidget xml castToProgressBar "progressbaroverall"
@@ -44,18 +45,22 @@ runGUI rsyncstream =
         messages' <- xmlGetWidget xml castToTextView "messages"
         messageswin' <- xmlGetWidget xml castToScrolledWindow "messageswindow"
         button' <- xmlGetWidget xml castToButton "donebutton"
-        onClicked button' exitApp
+        onClicked button' exitfunc
 
         let gui = GUIParts lfile' ltotal' window' pbfile' pbtotal' messages'
                   messageswin' button'
         
         forkIO mainGUI
+        return gui
+
+runGUI gui rsyncstream = 
         streamWithMsgActions <- procmessages gui rsyncstream
         procstream gui streamWithMsgActions
 
 exitApp = 
     do mainQuit
        exitWith ExitSuccess
+
 procmessages gui stream = 
     do buf <- textViewGetBuffer (messages gui)
        iter <- textBufferGetEndIter buf
