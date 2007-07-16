@@ -1,0 +1,4 @@
+78407c019b4d1b3391cf78c28ca4fb01e14954a7 Before gtk2hs integration
+24dd8ee1bcd9d589f93c559372734fc940b029ed Initially working
+cb78ab882077a663fbc2ba8b318da6487cc6cf3a Before rename to gtkrsync
+a0337467b3eaeb1cb1fcd847cb3b371b9f94311d gtkrsync and gtkrsyncp both work
