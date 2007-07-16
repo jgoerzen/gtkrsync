@@ -1,6 +1,8 @@
 {- Copyright (c) 2007 John Goerzen <jgoerzen@complete.org>
    Please see the COPYRIGHT file -}
 
+module RsyncGUI where
+
 import System.IO
 import Control.Concurrent.MVar
 import Control.Concurrent

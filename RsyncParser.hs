@@ -1,6 +1,8 @@
 {- Copyright (c) 2007 John Goerzen <jgoerzen@complete.org>
    Please see the COPYRIGHT file -}
 
+module RsyncParser where
+
 import Data.List
 
 data LineType = SoftLine | HardLine
