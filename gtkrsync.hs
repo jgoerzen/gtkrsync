@@ -29,6 +29,9 @@ main = do
     gui <- initRsyncGUI (exitButton pid hasExited)
     installHandler sigCHLD (Catch (chldHandler gui pid hasExited)) Nothing
 
+    -- Check to see if we died before installing the handler
+    chldHandler gui pid hasExited
+
     runGUI gui rsyncstream
 
 exitButton pid mv = withMVar mv $ \hasexited ->
@@ -53,9 +56,12 @@ childFunc args rsyncbin readfd writefd =
 chldHandler gui pid mv = 
     do ps <- getProcessStatus True False pid
        case ps of
-            Just ps -> do swapMVar mv True
-                          case ps of
-                            Exited ExitSuccess -> return ()
-                            x -> oobError gui ("rsync exited with unexpected error: " ++ show x)
+            Just ps -> chldPs gui ps mv
             Nothing -> return ()
 
+chldPs gui ps mv =
+    do installHandler sigCHLD Default Nothing
+       swapMVar mv True
+       case ps of
+         Exited ExitSuccess -> return ()
+         x -> oobError gui ("rsync exited with unexpected error: " ++ show x)
