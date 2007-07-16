@@ -2,8 +2,9 @@
 # Copyright (c) 2004-2006 John Goerzen
 #
 
+DESTDIR ?= /usr/local
 all: setup			# GHC build
-	./setup configure
+	./setup configure --prefix=$(DESTDIR)
 	./setup build
 
 install:

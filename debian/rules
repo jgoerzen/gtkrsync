@@ -34,7 +34,7 @@ build-stamp: configure-stamp
 	dh_testdir
 
 	# Add here commands to compile the package.
-	$(MAKE)
+	$(MAKE) DESTDIR=/usr
 	cd docs && scons gtkrsync.1
 	#docbook-to-man debian/gtkrsync.sgml > gtkrsync.1
 
