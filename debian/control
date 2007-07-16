@@ -1,12 +1,35 @@
 Source: gtkrsync
-Section: unknown
-Priority: extra
+Section: utils
+Priority: optional
 Maintainer: John Goerzen <jgoerzen@complete.org>
-Build-Depends: debhelper (>= 5)
+Build-Depends: debhelper (>= 5), ghc6, libghc6-missingh-dev, libghc6-gtk-dev, libghc6-glade-dev, libghc6-gconf-dev, gtk-doc-tools, sgml2x, docbook-utils, jade, scons, xpdf-utils, lynx, libghc6-unix-dev
 Standards-Version: 3.7.2
 
 Package: gtkrsync
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: <insert up to 60 chars description>
- <insert long description, indented with spaces>
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${haskell:Depends}, rsync
+Description: GUI front-end to display rsync status
+ gtkrsync is a simple GUI that displays a running status display
+ built from rsync --progress -v.  This status display includes a
+ per-file and overall status bar, overall estimated time to completion,
+ and an expandable button that shows all rsync status output.
+ .
+ Unlike other GUI rsync frontends such as grsync, gtkrsync does not have
+ any GUI tools for configuring or invoking rsync.  gtkrsync is designed
+ to be invoked from the command line or shell scripts, which already
+ specify all the needed rsync options.  It is thus ideal for scripted
+ rsync runs that need a GUI, or for command-line users that would like a
+ GUI to monitor their rsync progress.
+ .
+ This package provides two binaries.  gtkrsync is a drop-in replacement
+ for rsync.  It fires up the GUI and invokes rsync, passing all args to
+ it.  When invoked this way, gtkrsync is able to detect if rsync exits
+ in error and alerts the user.  gtkrsync can also monitor both stdout
+ and stderr from rsync, and displays both.  The cancel button in
+ gtkrsync also will kill off the rsync process.
+ .
+ The other binary is gtkrsyncp.  This program accepts the output of
+ rsync --progress -v on standard input and displays it in a GUI.  It
+ cannot detect whether rsync exited in error and cannot kill rsync when
+ Cancel is pressed.  However, this program may be useful in some cases
+ when direct control of rsync is handled elsewhere.

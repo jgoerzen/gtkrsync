@@ -35,6 +35,7 @@ build-stamp: configure-stamp
 
 	# Add here commands to compile the package.
 	$(MAKE)
+	cd docs && scons gtkrsync.1
 	#docbook-to-man debian/gtkrsync.sgml > gtkrsync.1
 
 	touch $@
@@ -56,7 +57,8 @@ install: build
 	dh_installdirs
 
 	# Add here commands to install the package into debian/gtkrsync.
-	$(MAKE) DESTDIR=$(CURDIR)/debian/gtkrsync install
+	#$(MAKE) DESTDIR=$(CURDIR)/debian/gtkrsync install
+	./setup copy --copy-prefix=`pwd`/debian/gtkrsync/usr
 
 
 # Build architecture-independent files here.
@@ -81,7 +83,7 @@ binary-arch: build install
 #	dh_installinit
 #	dh_installcron
 #	dh_installinfo
-	dh_installman
+	dh_installman docs/gtkrsync.1
 	dh_link
 	dh_strip
 	dh_compress

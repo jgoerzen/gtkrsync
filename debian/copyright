@@ -1,24 +1,29 @@
 This package was debianized by John Goerzen <jgoerzen@complete.org> on
 Mon, 16 Jul 2007 15:34:59 -0500.
 
-It was downloaded from <url://example.com>
+It was downloaded from http://software.complete.org/gtkrsync
 
 Upstream Author(s): 
 
-    <put author's name and email here>
-    <likewise for another author>
+  John Goerzen <jgoerzen@complete.org>
+
 
 Copyright: 
 
-    <Copyright (C) YYYY Name OfAuthor>
-    <likewise for another author>
+Copyright (C) 2007 John Goerzen
+<jgoerzen@complete.org>
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 2 of the License, or
+   (at your option) any later version.
 
-License:
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
 
-    <Put the license of the package here indented by 4 spaces>
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-The Debian packaging is (C) 2007, John Goerzen <jgoerzen@complete.org> and
-is licensed under the GPL, see `/usr/share/common-licenses/GPL'.
-
-# Please also look if there are files or directories which have a
-# different copyright/license attached and list them here.
+Debian users can find the GPL under /usr/share/common-licenses/GPL
