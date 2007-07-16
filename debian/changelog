@@ -1,6 +1,6 @@
 gtkrsync (1.0.0-1) unstable; urgency=low
 
-  * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
+  * Initial release.  Closes: #433358.
 
  -- John Goerzen <jgoerzen@complete.org>  Mon, 16 Jul 2007 15:34:59 -0500
 
