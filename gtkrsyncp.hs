@@ -3,15 +3,6 @@
 
 import System.IO
 import Control.Concurrent.MVar
-import Control.Concurrent
-import Data.List
-import Text.Regex.Posix
-import Graphics.UI.Gtk
-import Graphics.UI.Gtk.Glade
-import Control.Monad
-import System.Exit
-import Data.Progress.Tracker
-import System.Time.Utils
 import RsyncParser
 import RsyncGUI
 
