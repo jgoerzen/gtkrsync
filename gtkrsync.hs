@@ -9,10 +9,12 @@ import System.Environment
 import System.Process
 import System.Posix.IO
 import System.Posix.Signals
+import System.Posix.Process
+import System.Exit
 
 main = do
     args <- getArgs
-    rsyncbin <- catch (getEnv "RSYNC") (\_ -> "rsync")
+    rsyncbin <- catch (getEnv "RSYNC") (\_ -> return "rsync")
 
     (readfd, writefd) <- createPipe
     pid <- forkProcess (childFunc args rsyncbin readfd writefd)
@@ -53,7 +55,7 @@ chldHandler gui pid mv =
        case ps of
             Just ps -> do swapMVar mv True
                           case ps of
-                            Exited 0 -> return ()
+                            Exited ExitSuccess -> return ()
                             x -> oobError gui ("rsync exited with unexpected error: " ++ show x)
             Nothing -> return ()
 

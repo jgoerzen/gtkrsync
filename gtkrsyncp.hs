@@ -10,5 +10,6 @@ main = do
     hSetBuffering stdin (BlockBuffering Nothing)
     rsyncinput <- getContents
     let rsyncstream = customlines rsyncinput
-    runGUI rsyncstream
+    gui <- initRsyncGUI exitApp
+    runGUI gui rsyncstream
 

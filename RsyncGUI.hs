@@ -54,8 +54,8 @@ initRsyncGUI exitfunc =
         return gui
 
 runGUI gui rsyncstream = 
-        streamWithMsgActions <- procmessages gui rsyncstream
-        procstream gui streamWithMsgActions
+    do streamWithMsgActions <- procmessages gui rsyncstream
+       procstream gui streamWithMsgActions
 
 exitApp = 
     do mainQuit
@@ -146,7 +146,7 @@ procprogress gui progress (action, line)
           tocheck = line =~ "xfer#[0-9]+, to-check=([0-9]+)/([0-9]+)"
 
 oobError gui msg = 
-    do dlg <- messageDialogNew (Just (mainwin gui)) [] MessageError ButtonsOK
+    do dlg <- messageDialogNew (Just (mainwin gui)) [] MessageError ButtonsOk
               ("An error has been detected:\n\n" ++ msg ++ 
                "\n\nExpand the Messages area in the main window for details.")
        dialogRun dlg
