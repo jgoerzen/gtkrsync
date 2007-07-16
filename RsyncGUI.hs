@@ -56,6 +56,13 @@ initRsyncGUI exitfunc =
 runGUI gui rsyncstream = 
     do streamWithMsgActions <- procmessages gui rsyncstream
        procstream gui streamWithMsgActions
+       labelSetText (lfile gui) ""
+       labelSetText (ltotal gui) "Sync process has finished"
+       progressBarSetFraction (pbfile gui) 1.0
+       progressBarSetText (pbfile gui) ""
+       progressBarSetFraction (pbtotal gui) 1.0
+       progressBarSetText (pbtotal gui) ""
+       buttonSetLabel (btdone gui) "gtk-close"
 
 exitApp = 
     do mainQuit
