@@ -6,6 +6,10 @@ all: setup			# GHC build
 	./setup configure
 	./setup build
 
+install:
+	./setup install
+	@echo "Please manually install docs/gtkrsync.1"
+
 hugsbuild: setup
 	./setup configure --hugs
 	./setup build
@@ -23,6 +27,6 @@ clean-code:
 	-rm -f `find . -name "*.cm*"`
 
 clean-doc:
-	-cd doc && scons -c && scons -c html pdf text ps
-	-rm -rf doc/.sconsign* .depend test
-	-rm -f doc/manpage*
+	-cd doc && scons -c && scons -c html pdf text ps gtkrsync.1
+	-rm -rf docs/.sconsign* .depend test
+	-rm -f docs/manpage*
