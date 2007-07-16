@@ -16,3 +16,8 @@ data-files: gtkrsync.glade
 Executable: gtkrsync
 Main-Is: gtkrsync.hs
 GHC-Options: -O2
+
+Executable: gtkrsyncp
+Main-Is: gtkrsyncp.hs
+GHC-Options: -O2
+
