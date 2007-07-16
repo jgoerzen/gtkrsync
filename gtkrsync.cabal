@@ -1,5 +1,5 @@
 Name: gtkrsync
-Version: 0.5.0
+Version: 1.0.0
 License: GPL
 Maintainer: John Goerzen <jgoerzen@complete.org>
 Author: John Goerzen
@@ -7,7 +7,7 @@ Stability: Beta
 Copyright: Copyright (c) 2007 John Goerzen
 license-file: COPYRIGHT
 extra-source-files: COPYING
-homepage: http://software.complete.org/gtkrsync
+homepage: http://hg.complete.org/gtkrsync
 Category: Network
 Synopsis: Gnome rsync progress display
 Build-Depends: base, unix, gtk, gconf, glade, regex-posix, MissingH
