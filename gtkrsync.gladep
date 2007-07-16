@@ -2,7 +2,7 @@
 <!DOCTYPE glade-project SYSTEM "http://glade.gnome.org/glade-project-2.0.dtd">
 
 <glade-project>
-  <name>Grsyncprogress</name>
-  <program_name>grsyncprogress</program_name>
+  <name>Gtkrsync</name>
+  <program_name>gtkrsync</program_name>
   <gnome_support>FALSE</gnome_support>
 </glade-project>

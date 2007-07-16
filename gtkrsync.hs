@@ -51,9 +51,9 @@ runGUI rsyncstream =
      do initGUI
         timeoutAddFull (yield >> return True)
                        priorityDefaultIdle 50
-        -- gladefn <- getDataFileName "grsyncprogress.glade"
+        -- gladefn <- getDataFileName "gtkrsync.glade"
         -- FIXME: use this for release: Just xml <- xmlNew gladefn
-        Just xml <- xmlNew "grsyncprogress.glade"
+        Just xml <- xmlNew "gtkrsync.glade"
 
         window' <- xmlGetWidget xml castToWindow "mainwindow"
         onDestroy window' exitApp
