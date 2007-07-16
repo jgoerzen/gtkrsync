@@ -145,3 +145,10 @@ procprogress gui progress (action, line)
           progressl = line =~ "^ *([0-9]+) +([0-9]+)%" -- .+[0-9]+:[0-9]+:[0-9]+" =~ line
           tocheck = line =~ "xfer#[0-9]+, to-check=([0-9]+)/([0-9]+)"
 
+oobError gui msg = 
+    do dlg <- messageDialogNew (Just (mainwin gui)) [] MessageError ButtonsOK
+              ("An error has been detected:\n\n" ++ msg ++ 
+               "\n\nExpand the Messages area in the main window for details.")
+       dialogRun dlg
+       widgetDestroy dlg
+
