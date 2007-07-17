@@ -26,20 +26,21 @@ main = do
 
     rsyncinput <- hGetContents readh
     let rsyncstream = customlines rsyncinput
-    gui <- initRsyncGUI (exitButton pid hasExited)
-    installHandler sigCHLD (Catch (chldHandler gui pid hasExited)) Nothing
+    exitmv <- newMVar Nothing
+    gui <- initRsyncGUI (exitButton pid hasExited exitmv)
+    installHandler sigCHLD (Catch (chldHandler gui pid hasExited exitmv)) Nothing
 
     -- Check to see if we died before installing the handler
     ps <- getProcessStatus False False pid
     case ps of
          Nothing -> return ()
-         Just x -> chldPs gui x hasExited
+         Just x -> chldPs gui x hasExited exitmv
 
-    runGUI gui rsyncstream
+    runGUI gui rsyncstream exitmv
 
-exitButton pid mv = withMVar mv $ \hasexited ->
+exitButton pid mv exitmv = withMVar mv $ \hasexited ->
     if hasexited
-       then exitApp
+       then exitApp exitmv
        else do -- Cancel signal handler since we don't want notification to
                -- user of exit due to user's own action
                installHandler sigCHLD Default Nothing
@@ -47,7 +48,7 @@ exitButton pid mv = withMVar mv $ \hasexited ->
                -- anything else to read it.  Besides, doing so would cause
                -- deadlock anyway.
                signalProcess sigKILL pid
-               exitApp
+               exitApp exitmv
 
 childFunc args rsyncbin readfd writefd =
     do closeFd readfd
@@ -56,15 +57,18 @@ childFunc args rsyncbin readfd writefd =
        closeFd writefd
        executeFile rsyncbin True args Nothing
 
-chldHandler gui pid mv = 
+chldHandler gui pid mv exitmv = 
     do ps <- getProcessStatus True False pid
        case ps of
-            Just ps -> chldPs gui ps mv
+            Just ps -> chldPs gui ps mv exitmv
             Nothing -> return ()
 
-chldPs gui ps mv =
+chldPs gui ps mv exitmv =
     do installHandler sigCHLD Default Nothing
        swapMVar mv True
        case ps of
          Exited ExitSuccess -> return ()
-         x -> oobError gui ("rsync exited with unexpected error: " ++ show x)
+         Exited x -> do oobError gui ("rsync exited with unexpected error: " ++ show x)
+                        swapMVar exitmv (Just x) >> return ()
+         x -> do oobError gui ("rsync exited with unexpected condition: " ++ show x)
+                 swapMVar exitmv (Just (ExitFailure 255)) >> return ()
