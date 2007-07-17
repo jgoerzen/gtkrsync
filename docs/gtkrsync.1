@@ -3,7 +3,7 @@
 .\" <http://shell.ipoline.com/~elmert/comp/docbook2X/> 
 .\" Please send any bug reports, improvements, comments, patches, 
 .\" etc. to Steve Cheng <steve@ggi-project.org>.
-.TH "GTKRSYNC" "1" "16 July 2007" "John Goerzen" "gtkrsync Manual"
+.TH "GTKRSYNC" "1" "17 July 2007" "John Goerzen" "gtkrsync Manual"
 
 .SH NAME
 gtkrsync \- GUI front-end for rsync
@@ -48,6 +48,15 @@ when direct control of \fBrsync\fR is handled elsewhere.
 .PP
 All options passed to \fBgtkrsync\fR are sent directly to
 \fBrsync\fR(1).  \fBgtkrsyncp\fR takes no options.
+.SH "EXIT VALUES"
+.PP
+\fBgtkrsync\fR and \fBgtkrsyncp\fR both return 0 on success or 20 if the user
+clicked Cancel or closed the window before the \fBrsync\fR was complete.
+20 is also the code that \fBrsync\fR uses to indicate a transfer
+interrupted by the user.
+.PP
+In all other cases, \fBgtkrsync\fR returns the result code that \fBrsync\fR
+returned.  \fBgtkrsyncp\fR returns 0.
 .SH "ENVIRONMENT VARIABLES"
 .PP
 \fBgtkrsync\fR will look for an RSYNC environment
