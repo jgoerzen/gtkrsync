@@ -54,9 +54,11 @@ initRsyncGUI exitfunc =
         forkIO mainGUI
         return gui
 
-runGUI gui rsyncstream = 
+runGUI gui rsyncstream exitmv = 
     do streamWithMsgActions <- procmessages gui rsyncstream
        procstream gui streamWithMsgActions
+       modifyMVar_ exitmv mvdone
+
        labelSetText (lfile gui) ""
        labelSetText (ltotal gui) "Sync process has finished"
        progressBarSetFraction (pbfile gui) 1.0
@@ -64,10 +66,15 @@ runGUI gui rsyncstream =
        progressBarSetFraction (pbtotal gui) 1.0
        progressBarSetText (pbtotal gui) ""
        buttonSetLabel (btdone gui) "gtk-close"
+    where mvdone Nothing = return (Just ExitSuccess)
+          mvdone (Just x) = return (Just x)
 
-exitApp = 
+exitApp exitmv = 
     do mainQuit
-       exitWith ExitSuccess
+       ec <- takeMVar exitmv
+       case ec of
+            Nothing -> exitWith (ExitFailure 20)
+            Just x -> exitWith x
 
 procmessages gui stream = 
     do buf <- textViewGetBuffer (messages gui)

@@ -5,11 +5,13 @@ import System.IO
 import Control.Concurrent.MVar
 import RsyncParser
 import RsyncGUI
+import System.Exit
 
 main = do
     hSetBuffering stdin (BlockBuffering Nothing)
     rsyncinput <- getContents
     let rsyncstream = customlines rsyncinput
-    gui <- initRsyncGUI exitApp
-    runGUI gui rsyncstream
+    exitmv <- newMVar Nothing
+    gui <- initRsyncGUI (exitApp exitmv)
+    runGUI gui rsyncstream exitmv
 
