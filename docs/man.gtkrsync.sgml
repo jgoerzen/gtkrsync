@@ -83,7 +83,21 @@
       </para>
     </refsect1>
 
-    <refsect1 id="hg.man.hg.buildpackage.environment">
+    <refsect1 id="exit">
+      <title>EXIT VALUES</title>
+      <para>
+        &gtkrsync; and &gtkrsyncp; both return 0 on success or 20 if the user
+        clicked Cancel or closed the window before the &rsync; was complete.
+        20 is also the code that &rsync; uses to indicate a transfer
+        interrupted by the user.
+      </para>
+      <para>
+        In all other cases, &gtkrsync; returns the result code that &rsync;
+        returned.  &gtkrsyncp; returns 0.
+      </para>
+    </refsect1>
+
+    <refsect1 id="environment">
       <title>ENVIRONMENT VARIABLES</title>
       <para>
         &gtkrsync; will look for an <literal>RSYNC</literal> environment
