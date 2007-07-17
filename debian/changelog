@@ -1,3 +1,9 @@
+gtkrsync (1.0.1) unstable; urgency=low
+
+  * Now propogates rsync return value to caller.
+
+ -- John Goerzen <jgoerzen@complete.org>  Tue, 17 Jul 2007 14:54:01 -0500
+
 gtkrsync (1.0.0) unstable; urgency=low
 
   * Initial release.  Closes: #433358.
