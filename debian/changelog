@@ -1,3 +1,11 @@
+gtkrsync (1.0.2) unstable; urgency=low
+
+  * Added Build-Depends on process.  Patch from Mikhail Gusarov.
+    (Closes: #470377)
+  * Added Vcs-* links
+
+ -- John Goerzen <jgoerzen@complete.org>  Fri, 21 Mar 2008 08:42:45 -0500
+
 gtkrsync (1.0.1) unstable; urgency=low
 
   * Now propogates rsync return value to caller.
