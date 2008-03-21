@@ -10,7 +10,7 @@ extra-source-files: COPYING
 homepage: http://hg.complete.org/gtkrsync
 Category: Network
 Synopsis: Gnome rsync progress display
-Build-Depends: base, unix, gtk, gconf, glade, regex-posix, MissingH
+Build-Depends: base, unix, gtk, gconf, glade, regex-posix, MissingH, process
 data-files: gtkrsync.glade
 
 Executable: gtkrsync
