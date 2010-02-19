@@ -3,7 +3,7 @@
 .\" <http://shell.ipoline.com/~elmert/comp/docbook2X/> 
 .\" Please send any bug reports, improvements, comments, patches, 
 .\" etc. to Steve Cheng <steve@ggi-project.org>.
-.TH "GTKRSYNC" "1" "17 July 2007" "John Goerzen" "gtkrsync Manual"
+.TH "GTKRSYNC" "1" "19 February 2010" "John Goerzen" "gtkrsync Manual"
 
 .SH NAME
 gtkrsync \- GUI front-end for rsync
@@ -18,7 +18,9 @@ gtkrsync \- GUI front-end for rsync
 .PP
 \fBgtkrsync\fR is a graphical interface for displaying the progress of
 an \fBrsync\fR(1) session.  It displays a running status display from
-parsing the output of rsync --progress -v\&.  This
+parsing the output of rsync --progress -v
+(with --no-inc-recursive with \fBrsync\fR v3.0 or
+above).  This
 status display includes a per-file and overall status bar, overall
 estimated time to completion, and an expandable button that shows
 all rsync status output.
@@ -39,7 +41,15 @@ and stderr from \fBrsync\fR, and displays both.  The cancel button in
 pass --progress -v on the \fBgtkrsync\fR command line in
 order to get enough information out of \fBrsync\fR to build a proper GUI.
 .PP
-The other binary is \fBgtkrsyncp\fR\&.  This program accepts the output of
+If ysing \fBrsync\fR version 3.0 or above, you must also add
+--no-inc-recursive to your command line.
+These newer versions of \fBrsync\fR use incremental tree scanning
+by default.  As a result, they do not emit information up
+front about the expected number of files to transfer, and thus
+\fBgtkrsync\fR would lack enough information to display its
+progress bars.
+.PP
+Besides \fBgtkrsync\fR, the other binary is \fBgtkrsyncp\fR\&.  This program accepts the output of
 rsync --progress -v on standard input and displays it in a GUI.  It
 cannot detect whether \fBrsync\fR exited in error and cannot kill \fBrsync\fR when
 Cancel is pressed.  However, this program may be useful in some cases
@@ -75,7 +85,7 @@ to use to prompt the user for a password when needed.
 .SH "COPYRIGHT"
 .PP
 \fBgtkrsync\fR, all associated scripts and programs, this manual,
-and all build scripts are Copyright (C) 2007 John Goerzen.
+and all build scripts are Copyright (C) 2007-2010 John Goerzen.
 .PP
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -100,9 +110,9 @@ copyright is held as stated in the COPYRIGHT section.
 \fBgtkrsync\fR may be downloaded from the Debian packaging system or at
  <URL:http://packages.debian.org/gtkrsync>\&.
 .PP
-\fBgtkrsync\fR may also be downloaded using Mercurial by running
-\fBhg clone
-http://hg.complete.org/gtkrsync\fR\&.
+\fBgtkrsync\fR may also be downloaded using git by running
+\fBgit clone
+git://git.complete.org/gtkrsync\fR\&.
 .SH "SEE ALSO"
 .PP
 \fBrsync\fR(1),
