@@ -40,7 +40,9 @@
       <para>
         &gtkrsync; is a graphical interface for displaying the progress of
         an &rsync;(1) session.  It displays a running status display from
-        parsing the output of <literal>rsync --progress -v</literal>.  This
+        parsing the output of <literal>rsync --progress -v</literal>
+        (with <literal>--no-inc-recursive</literal> with &rsync; v3.0 or
+        above).  This
         status display includes a per-file and overall status bar, overall
         estimated time to completion, and an expandable button that shows
         all rsync status output.
@@ -66,7 +68,17 @@
       </para>
 
       <para>
-        The other binary is &gtkrsyncp;.  This program accepts the output of
+        If ysing &rsync; version 3.0 or above, you must also add
+        <literal>--no-inc-recursive</literal> to your command line.
+        These newer versions of &rsync; use incremental tree scanning
+        by default.  As a result, they do not emit information up
+        front about the expected number of files to transfer, and thus
+        &gtkrsync; would lack enough information to display its
+        progress bars.
+      </para>
+
+      <para>
+        Besides &gtkrsync;, the other binary is &gtkrsyncp;.  This program accepts the output of
         <literal>rsync --progress -v</literal> on standard input and displays it in a GUI.  It
  cannot detect whether &rsync; exited in error and cannot kill &rsync; when
  Cancel is pressed.  However, this program may be useful in some cases
@@ -122,7 +134,7 @@
       <title>Copyright</title>
   <para>
     &gtkrsync;, all associated scripts and programs, this manual,
-    and all build scripts are Copyright &copy; 2007 John Goerzen.
+    and all build scripts are Copyright &copy; 2007-2010 John Goerzen.
   </para>
       <para>
         This program is free software; you can redistribute it and/or modify
@@ -160,9 +172,9 @@
 	  url="http://packages.debian.org/gtkrsync"></ulink>.
       </para>
       <para>
-	&package; may also be downloaded using Mercurial by running
-        <command>hg clone
-        http://hg.complete.org/gtkrsync</command>.
+	&package; may also be downloaded using git by running
+        <command>git clone
+        git://git.complete.org/gtkrsync</command>.
       </para>
     </refsect1>
 
@@ -177,7 +189,7 @@
   </refsect1>
 
   </refentry>
-
+  
 <!-- </reference> -->
 
 <!--
