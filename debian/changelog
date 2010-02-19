@@ -1,3 +1,10 @@
+gtkrsync (1.0.4) unstable; urgency=low
+
+  * New upstream release with updated documentation for rsync 3.0.
+    Closes: #537255.
+
+ -- John Goerzen <jgoerzen@complete.org>  Fri, 19 Feb 2010 11:05:25 -0600
+
 gtkrsync (1.0.2) unstable; urgency=low
 
   * Added Build-Depends on process.  Patch from Mikhail Gusarov.
