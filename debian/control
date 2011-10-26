@@ -2,7 +2,7 @@ Source: gtkrsync
 Section: utils
 Priority: optional
 Maintainer: John Goerzen <jgoerzen@complete.org>
-Build-Depends: debhelper (>= 5), ghc6, libghc6-missingh-dev, libghc6-gtk-dev, libghc6-glade-dev, libghc6-gconf-dev, gtk-doc-tools, sgml2x, docbook-utils, jade, scons, xpdf-utils, lynx, libghc6-unix-dev
+Build-Depends: debhelper (>= 5), ghc6, libghc6-missingh-dev, libghc6-gtk-dev, libghc6-glade-dev, libghc6-gconf-dev, gtk-doc-tools, sgml2x, docbook-utils, jade, scons, poppler-utils, lynx, libghc6-unix-dev
 Standards-Version: 3.7.2
 Vcs-Git: git://git.complete.org/gtkrsync
 Vcs-Browser: http://git.complete.org/gtkrsync
